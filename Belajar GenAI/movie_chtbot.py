@@ -32,22 +32,23 @@ qdrant = QdrantVectorStore.from_existing_collection(
 )
 
 @tool
-def get_relevant_docs(question):
-  """Use this tools for get relevant documents about movies."""
-  results = qdrant.similarity_search(
-      question,
-      k=10
-  )
-  return results
-
-tools = [get_relevant_docs]
-
 def chat_chef(question, history):
     agent = create_react_agent(
         model=llm,
         tools=tools,
         prompt= f'''You are a master of any movies. Answer only question about movies and use given tools for get movies details.'''
     )
+
+    messages = []
+    # Add conversation history
+    for msg in history:
+        if msg["role"] == "Human":
+            messages.append({"role": "user", "content": msg["content"]})
+        elif msg["role"] == "AI":
+            messages.append({"role": "assistant", "content": msg["content"]})
+    
+    messages.append({"role": "user", "content": question})
+
     result = agent.invoke(
         {"messages": [{"role": "user", "content": question}]}
     )
@@ -120,4 +121,5 @@ if prompt := st.chat_input("Ask me movies question"):
     with st.expander("**Usage Details:**"):
 
         st.code(f'input token : {response["total_input_tokens"]}\noutput token : {response["total_output_tokens"]}')
+
 
