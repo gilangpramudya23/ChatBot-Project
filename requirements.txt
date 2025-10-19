@@ -13,4 +13,5 @@ langchain-qdrant
 langgraph
 openai
 qdrant-client
+langgraph-supervisor
 python-dotenv
