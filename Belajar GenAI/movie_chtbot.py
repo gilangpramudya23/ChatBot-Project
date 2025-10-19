@@ -30,7 +30,7 @@ qdrant = QdrantVectorStore.from_existing_collection(
     url=QDRANT_URL,
     api_key=QDRANT_API_KEY
 )
-
+@tool
 def get_relevant_docs(question):
     """Use this tools for get relevant documents about movies."""
     results = qdrant.similarity_search(
@@ -130,6 +130,7 @@ if prompt := st.chat_input("Ask me movies question"):
         st.code(history_display)
     with st.expander("**Usage Details:**"):
         st.code(f'input token : {response["total_input_tokens"]}\noutput token : {response["total_output_tokens"]}')
+
 
 
 
