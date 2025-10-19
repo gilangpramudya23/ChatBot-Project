@@ -2,15 +2,17 @@ import streamlit as st
 from langchain_openai import ChatOpenAI
 
 # Definisikan cara mengambil OpenAI API Key
-if st.secrets == True:
+if "OPENAI_API_KEY" in st.secrets:
     OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-
-if OPENAI_API_KEY:
-    # Definisikan LLM
+    
+    # Initialize LLM only if API key is available
     llm = ChatOpenAI(
         model="gpt-4o-mini",
         api_key=OPENAI_API_KEY
     )
+else:
+    st.error("OpenAI API Key not found in secrets. Please configure it in Streamlit Cloud.")
+    st.stop()
 
 # Fungsi untuk memproses pesan pengguna dan menghasilkan respons
 def get_chatbot_response(user_input, history):
