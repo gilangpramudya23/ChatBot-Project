@@ -31,15 +31,26 @@ qdrant = QdrantVectorStore.from_existing_collection(
     api_key=QDRANT_API_KEY
 )
 
+def get_relevant_docs(question):
+    """Use this tools for get relevant documents about movies."""
+    results = qdrant.similarity_search(
+        question,
+        k=10
+    )
+    return results
+
 tools = [get_relevant_docs]
+
 def chat_chef(question, history):
     agent = create_react_agent(
         model=llm,
         tools=tools,
-        prompt= f'''You are a master of any movies. Answer only question about movies and use given tools for get movies details.'''
+        prompt=f'''You are a master of any movies. Answer only question about movies and use given tools for get movies details.'''
     )
-
+    
+    # Build the full conversation history for the agent
     messages = []
+    
     # Add conversation history
     for msg in history:
         if msg["role"] == "Human":
@@ -47,33 +58,30 @@ def chat_chef(question, history):
         elif msg["role"] == "AI":
             messages.append({"role": "assistant", "content": msg["content"]})
     
+    # Add the current question
     messages.append({"role": "user", "content": question})
-
-    result = agent.invoke(
-        {"messages": [{"role": "user", "content": question}]}
-    )
+    
+    # Invoke agent with full history
+    result = agent.invoke({"messages": messages})
+    
     answer = result["messages"][-1].content
-
     total_input_tokens = 0
     total_output_tokens = 0
-
     for message in result["messages"]:
         if "usage_metadata" in message.response_metadata:
             total_input_tokens += message.response_metadata["usage_metadata"]["input_tokens"]
             total_output_tokens += message.response_metadata["usage_metadata"]["output_tokens"]
         elif "token_usage" in message.response_metadata:
-            # Fallback for older or different structures
             total_input_tokens += message.response_metadata["token_usage"].get("prompt_tokens", 0)
             total_output_tokens += message.response_metadata["token_usage"].get("completion_tokens", 0)
-
+    
     price = 17_000*(total_input_tokens*0.15 + total_output_tokens*0.6)/1_000_000
-
     tool_messages = []
     for message in result["messages"]:
         if isinstance(message, ToolMessage):
             tool_message_content = message.content
             tool_messages.append(tool_message_content)
-
+    
     response = {
         "answer": answer,
         "price": price,
@@ -96,9 +104,9 @@ for message in st.session_state.messages:
 
 # Accept user input
 if prompt := st.chat_input("Ask me movies question"):
+    # Get last 20 messages for context window management
     messages_history = st.session_state.get("messages", [])[-20:]
-    history = "\n".join([f'{msg["role"]}: {msg["content"]}' for msg in messages_history]) or " "
-
+    
     # Display user message in chat message container
     with st.chat_message("Human"):
         st.markdown(prompt)
@@ -107,19 +115,20 @@ if prompt := st.chat_input("Ask me movies question"):
     
     # Display assistant response in chat message container
     with st.chat_message("AI"):
-        response = chat_chef(prompt, history)
+        # Pass the actual message history, not a string
+        response = chat_chef(prompt, messages_history)
         answer = response["answer"]
         st.markdown(answer)
         st.session_state.messages.append({"role": "AI", "content": answer})
-
+    
+    # Create history string for display only
+    history_display = "\n".join([f'{msg["role"]}: {msg["content"]}' for msg in messages_history])
+    
     with st.expander("**Tool Calls:**"):
         st.code(response["tool_messages"])
-
     with st.expander("**History Chat:**"):
-        st.code(history)
-
+        st.code(history_display)
     with st.expander("**Usage Details:**"):
-
         st.code(f'input token : {response["total_input_tokens"]}\noutput token : {response["total_output_tokens"]}')
 
 
