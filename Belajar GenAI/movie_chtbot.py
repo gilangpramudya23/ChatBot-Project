@@ -83,11 +83,8 @@ def chat_chef(question, history):
     return response
 
 st.title("Chatbot Recipes Master")
-st.image("./Recipe Master Agent/header_img.png")
 
 # Initialize chat history
-if "messages" not in st.session_state:
-    st.session_state.messages = []
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
@@ -119,4 +116,5 @@ if prompt := st.chat_input("Ask me recipes question"):
         st.code(history)
 
     with st.expander("**Usage Details:**"):
+
         st.code(f'input token : {response["total_input_tokens"]}\noutput token : {response["total_output_tokens"]}')
