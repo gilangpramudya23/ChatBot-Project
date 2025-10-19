@@ -105,7 +105,7 @@ for message in st.session_state.messages:
 # Accept user input
 if prompt := st.chat_input("Ask me movies question"):
     # Get last 20 messages for context window management
-    messages_history = st.session_state.get("messages", [])[-20:]
+    messages_history = st.session_state.get("messages", [])[-10:]
     
     # Display user message in chat message container
     with st.chat_message("Human"):
@@ -130,6 +130,7 @@ if prompt := st.chat_input("Ask me movies question"):
         st.code(history_display)
     with st.expander("**Usage Details:**"):
         st.code(f'input token : {response["total_input_tokens"]}\noutput token : {response["total_output_tokens"]}')
+
 
 
 
