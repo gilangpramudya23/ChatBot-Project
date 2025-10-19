@@ -31,7 +31,6 @@ qdrant = QdrantVectorStore.from_existing_collection(
     api_key=QDRANT_API_KEY
 )
 
-@tool
 def chat_chef(question, history):
     agent = create_react_agent(
         model=llm,
@@ -121,5 +120,6 @@ if prompt := st.chat_input("Ask me movies question"):
     with st.expander("**Usage Details:**"):
 
         st.code(f'input token : {response["total_input_tokens"]}\noutput token : {response["total_output_tokens"]}')
+
 
 
