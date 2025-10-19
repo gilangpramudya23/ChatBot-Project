@@ -82,9 +82,11 @@ def chat_chef(question, history):
     }
     return response
 
-st.title("Chatbot Recipes Master")
+st.title("Chatbot Master Agent for Movies")
 
 # Initialize chat history
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
 # Display chat messages from history on app rerun
 for message in st.session_state.messages:
@@ -92,7 +94,7 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # Accept user input
-if prompt := st.chat_input("Ask me recipes question"):
+if prompt := st.chat_input("Ask me movies question"):
     messages_history = st.session_state.get("messages", [])[-20:]
     history = "\n".join([f'{msg["role"]}: {msg["content"]}' for msg in messages_history]) or " "
 
@@ -118,3 +120,4 @@ if prompt := st.chat_input("Ask me recipes question"):
     with st.expander("**Usage Details:**"):
 
         st.code(f'input token : {response["total_input_tokens"]}\noutput token : {response["total_output_tokens"]}')
+
