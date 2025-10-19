@@ -15,3 +15,4 @@ openai
 qdrant-client
 langgraph-supervisor
 python-dotenv
+langgraph-prebuilt
