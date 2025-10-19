@@ -4,8 +4,6 @@ from langchain_openai import ChatOpenAI
 # Definisikan cara mengambil OpenAI API Key
 if st.secrets == True:
     OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
-else:
-    OPENAI_API_KEY = st.text_input("Enter your API Key:", type="password")
 
 if OPENAI_API_KEY:
     # Definisikan LLM
