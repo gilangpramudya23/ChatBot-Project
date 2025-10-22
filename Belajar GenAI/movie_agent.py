@@ -341,7 +341,12 @@ if prompt := st.chat_input("Ask me movies question"):
     # Show details in expanders
     with st.expander("**Tool Calls:**"):
         if response["tool_messages"]:
-            st.code("\n\n".join([str(msg) for msg in response["tool_messages"]]))
+            for i, msg in enumerate(response["tool_messages"], 1):
+                # Format the tool message nicely
+                if isinstance(msg, str):
+                    st.code(msg, language="python")
+                else:
+                    st.code(str(msg), language="python")
         else:
             st.info("No tools were called")
     
